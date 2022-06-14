@@ -4,6 +4,7 @@ module.exports = {
     try {
       const browser = new Browser(req.body);
       const result = await browser.tweet();
+      if (!result) throw 'tweet failed';
       res.send(result);
     } catch (err) {
       console.log(`TweetController tweet error: ${err}`);

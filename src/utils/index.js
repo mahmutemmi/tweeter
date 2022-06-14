@@ -2,6 +2,16 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
+  ensureParentFoldersExists() {
+    try {
+      const deviceFolder = path.join(__dirname, '..', '..', 'userdevice');
+      const dataFolder = path.join(__dirname, '..', '..', 'userdata');
+      fs.mkdirSync(deviceFolder);
+      fs.mkdirSync(dataFolder);
+    } catch (err) {
+      console.log('folders already exists so np');
+    }
+  },
   ensureFolderExists(name) {
     return new Promise((resolve, reject) => {
       const folder = path.join(__dirname, '..', '..', 'userdata', name);
@@ -12,10 +22,10 @@ module.exports = {
     })
   },
   readDeviceFile(name) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const location = path.join(__dirname, '..', '..', 'userdevice', name);
       fs.readFile(location, 'utf8', (err, data) => {
-        if (err) return reject(err);
+        if (err) return resolve();
         resolve(data);
       })
     });
