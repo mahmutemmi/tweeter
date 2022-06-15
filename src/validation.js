@@ -1,5 +1,5 @@
 const key = 'UgmktpU6WFNA4jCk';
-
+//very basic authentication using api key
 module.exports = {
   isAuthenticated(req, res, next) {
     if (!req.body) return res.status(500).send('request body missing');

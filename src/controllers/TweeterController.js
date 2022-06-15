@@ -4,21 +4,22 @@ module.exports = {
     try {
       const browser = new Browser(req.body);
       const result = await browser.tweet();
-      if (!result) throw 'tweet failed';
+      if (!result.success) throw result.text;
       res.send(result);
     } catch (err) {
       console.log(`TweetController tweet error: ${err}`);
-      res.status(500).send('there was an error with you request, please try again later');
+      res.status(500).send(`${err}`); // just return the error back, easier for debug
     }
   },
   async getLastTweet(req, res) {
     try {
       const browser = new Browser(req.body);
       const result = await browser.getLastTweet();
+      if (!result.success) throw result.text;
       res.send(result);
     } catch (err) {
       console.log(`TweetController getLastTweet error: ${err}`);
-      res.status(500).send('there was an error with you request, please try again later');
+      res.status(500).send(`${err}`);
     }
   }
 }

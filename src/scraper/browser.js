@@ -19,8 +19,8 @@ class Browser {
       defaultViewPort: false,
       userDataDir: userDataDir, // userDataDir to save session and prevent login each time
       args: args,
-      devtools: true,
-      slowMo: true
+      devtools: true, // let's see what our bot is doing
+      slowMo: true 
     }
     this.browser = await puppeteer.launch(launchOptions);
     this.page = (await this.browser.pages())[0];
@@ -57,7 +57,7 @@ class Browser {
     await this.page.evaluateOnNewDocument(device => {
       const navigatorProto = navigator.__proto__;
       delete navigatorProto.webdriver;
-      navigator.__proto__ = navigatorProto;
+      navigator.__proto__ = navigatorProto; // no need to scream "I am a bot"
       Object.defineProperty(navigator, 'mimeTypes', {
         get: () => {
           return device.mimeTypes;
@@ -118,7 +118,7 @@ class Browser {
   // mainly to see the response for CreateTweet request
   async waitForResponse(partialUrl) {
     return new Promise((resolve, reject) => {
-      const timeoutTimer = setTimeout(reject, 30000);
+      const timeoutTimer = setTimeout(reject, 30000); // don't wait for more than 30 seconds
       this.page.on('response', async response => {
         try {
           const url = response.url();
@@ -175,7 +175,6 @@ class Browser {
   }
   async tweet() {
     try {
-      this.tweetSuccessful = false;
       await this.launchBrowser();
       await this.page.goto('https://www.twitter.com');
       await Promise.race([this.waitForText('span', 'Sign in'), this.page.waitForSelector('[aria-label="Home"]'), this.page.waitForSelector('input')])
@@ -211,16 +210,34 @@ class Browser {
       console.log('sending tweet');
       await Promise.all([this.waitForResponse('CreateTweet'), tweetButton.click()]);
       console.log('tweet successful');
-      return 'tweet successful';
+      return { success: true, text: 'tweet successful' }
     } catch (err) {
       console.log(`browser tweet error: ${err}`);
-      return false;
+      return { success: false, text: `${err}` }
     } finally {
       if (this.browser) await this.browser.close();
     }
   }
   async getLastTweet() {
-
+    try {
+      await this.launchBrowser();
+      await this.page.goto(`https://mobile.twitter.com/${this.info.username}`);
+      await this.page.waitForSelector('article');
+      const text = await this.page.evaluate(() => {
+        const article = document.querySelector('article');
+        if (!article) return null;
+        const tweetContainer = article.querySelector('[data-testid="tweetText"]');
+        if (!tweetContainer) return null;
+        return tweetContainer.innerText;
+      });
+      console.log(`last tweet: ${text}`);
+      return { success: true, text: text }
+    } catch (err) {
+      console.log(`browser getLastTweet error: ${err}`);
+      return { success: false, error: `${err}` }
+    } finally {
+      if (this.browser) await this.browser.close();
+    }
   }
 }
 
