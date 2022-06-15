@@ -15,8 +15,11 @@ Provide twitter credentials and tweet anything.
 accepts post body:
 {
   "username": String, -- twitter username to log into
+  
   "password": String, -- twitter password to be used
+  
   "tweet": String,    -- tweet text
+  
   "key": "UgmktpU6WFNA4jCk" -- using simple api key authentication
 }
 
@@ -24,6 +27,7 @@ accepts post body:
 returns 
 {
   "success": bool,             -- true/false
+  
   "text": "tweet successful"   
 }
 
